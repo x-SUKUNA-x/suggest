@@ -19,8 +19,17 @@ app.use('/api/watchlist', watchlistRoutes);
 
 // Error Handler Middleware
 app.use(errorHandler);
+// Handle Production Serverless (Vercel) vs Local Execution
+if (process.env.NODE_ENV !== 'production') {
+    sequelize.sync({ alter: true }).then(() => {
+        console.log('Database connected and synced');
+        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    }).catch(err => console.error('Database connection error:', err));
+} else {
+    // In production Vercel Serverless, we do not call app.listen()
+    // It's handled by Vercel automatically. We just ensure DB syncs
+    sequelize.sync({ alter: true }).catch(err => console.error('DB connection error:', err));
+}
 
-sequelize.sync({ alter: true }).then(() => {
-    console.log('Database connected and synced');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}).catch(err => console.error('Database connection error:', err));
+// Crucial: Export the app for Vercel serverless functions
+module.exports = app;
