@@ -1,43 +1,33 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const Watchlist = require('../models/Watchlist');
-
-const SECRET_KEY = 'supersecretkey'; // Must match auth.js
-
-// Middleware to authenticate
-const authenticate = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
-
-    try {
-        const decoded = jwt.verify(token, SECRET_KEY);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        res.status(401).json({ error: 'Invalid token' });
-    }
-};
+const { protect } = require('../middleware/authMiddleware');
 
 // Get User's Watchlist
-router.get('/', authenticate, async (req, res) => {
+router.get('/', protect, async (req, res, next) => {
     try {
         const watchlist = await Watchlist.findAll({ where: { userId: req.user.id } });
         res.json(watchlist);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500);
+        next(error);
     }
 });
 
 // Add to Watchlist
-router.post('/', authenticate, async (req, res) => {
+router.post('/', protect, async (req, res, next) => {
     try {
         const { movieId, title, year, image } = req.body;
+
+        if (!movieId || !title) {
+            res.status(400);
+            return next(new Error('Please provide movie ID and title'));
+        }
 
         // Check if already in watchlist
         const existing = await Watchlist.findOne({ where: { userId: req.user.id, movieId } });
         if (existing) {
-            return res.status(400).json({ error: 'Movie is already in your watchlist' });
+            res.status(400);
+            return next(new Error('Movie is already in your watchlist'));
         }
 
         const newItem = await Watchlist.create({
@@ -50,22 +40,25 @@ router.post('/', authenticate, async (req, res) => {
 
         res.status(201).json(newItem);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500);
+        next(error);
     }
 });
 
 // Remove from Watchlist
-router.delete('/:movieId', authenticate, async (req, res) => {
+router.delete('/:movieId', protect, async (req, res, next) => {
     try {
         const { movieId } = req.params;
         const result = await Watchlist.destroy({ where: { userId: req.user.id, movieId } });
 
         if (result === 0) {
-            return res.status(404).json({ error: 'Item not found in watchlist' });
+            res.status(404);
+            return next(new Error('Item not found in watchlist'));
         }
         res.json({ message: 'Removed from watchlist successfully' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500);
+        next(error);
     }
 });
 

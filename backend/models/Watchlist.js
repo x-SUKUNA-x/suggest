@@ -27,6 +27,13 @@ const Watchlist = sequelize.define('Watchlist', {
         type: DataTypes.STRING,
         allowNull: true
     }
+}, {
+    indexes: [
+        {
+            unique: true,
+            fields: ['userId', 'movieId']
+        }
+    ]
 });
 
 // Relationships

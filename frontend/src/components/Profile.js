@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 import { FaMinus } from 'react-icons/fa';
 import './Profile.css';
 
@@ -26,9 +26,7 @@ const Profile = () => {
                     }
 
                     if (token) {
-                        axios.get('http://localhost:5001/api/watchlist', {
-                            headers: { Authorization: `Bearer ${token}` }
-                        }).then(res => {
+                        api.get('/watchlist').then(res => {
                             setWatchlist(res.data);
                         }).catch(e => console.error(e));
                     }
@@ -47,9 +45,7 @@ const Profile = () => {
         if (!token) return;
 
         try {
-            await axios.delete(`http://localhost:5001/api/watchlist/${movieId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.delete(`/watchlist/${movieId}`);
             setWatchlist(prev => prev.filter(movie => movie.movieId !== movieId));
         } catch (e) {
             console.error("Failed to remove from watchlist:", e);

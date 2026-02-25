@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import { FaChevronLeft, FaChevronRight, FaPlus, FaMinus } from 'react-icons/fa';
 import './HeroSlider.css';
 
@@ -17,9 +17,7 @@ const HeroSlider = ({ items }) => {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const res = await axios.get('http://localhost:5001/api/watchlist', {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
+                    const res = await api.get('/watchlist');
                     setAddedItemIds(new Set(res.data.map(movie => movie.movieId)));
                 } catch (e) {
                     console.error("Failed to fetch watchlist:", e);
@@ -63,9 +61,7 @@ const HeroSlider = ({ items }) => {
         };
 
         try {
-            await axios.post('http://localhost:5001/api/watchlist', watchlistItem, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.post('/watchlist', watchlistItem);
 
             setAddedItemIds(prev => {
                 const newSet = new Set(prev);

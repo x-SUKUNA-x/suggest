@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 import { FaUser, FaLock, FaEnvelope } from 'react-icons/fa';
 import Notification from './Notification';
 import './Auth.css';
@@ -27,7 +27,7 @@ const Login = ({ setIsAuthenticated, initialSignup = false }) => {
     const handleLoginSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:5001/api/auth/login', loginData);
+            const res = await api.post('/auth/login', loginData);
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
             if (setIsAuthenticated) setIsAuthenticated(true);
@@ -44,10 +44,10 @@ const Login = ({ setIsAuthenticated, initialSignup = false }) => {
     const handleSignupSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:5001/api/auth/signup', signupData);
+            const res = await api.post('/auth/signup', signupData);
 
             // Auto login after signup by hitting the login endpoint to get the token
-            const loginRes = await axios.post('http://localhost:5001/api/auth/login', {
+            const loginRes = await api.post('/auth/login', {
                 email: signupData.email,
                 password: signupData.password
             });
