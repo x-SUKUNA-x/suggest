@@ -35,7 +35,7 @@ app.use('/api/watchlist', watchlistRoutes);
 app.use(errorHandler);
 
 // Ensure DB syncs without starting a server
-sequelize.sync({ alter: true })
+await sequelize.sync({ alter: true })
     .then(() => console.log('Database connected and synced'))
     .catch(err => console.error('DB connection error:', err));
 
