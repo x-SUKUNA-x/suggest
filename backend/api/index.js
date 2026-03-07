@@ -34,10 +34,13 @@ app.use('/api/watchlist', watchlistRoutes);
 // Error Handler Middleware
 app.use(errorHandler);
 
-// Ensure DB syncs without starting a server
-await sequelize.sync({ alter: true })
-    .then(() => console.log('Database connected and synced'))
-    .catch(err => console.error('DB connection error:', err));
+// Auto-syncing DB on boot in serverless can cause issues and slow down cold starts.
+// We only sync in local dev now.
+if (process.env.NODE_ENV !== 'production') {
+    sequelize.sync({ alter: true })
+        .then(() => console.log('Database connected and synced'))
+        .catch(err => console.error('DB connection error:', err));
+}
 
 // Crucial: Export the app for Vercel serverless functions
 module.exports = app;
