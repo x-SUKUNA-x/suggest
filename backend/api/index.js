@@ -13,7 +13,7 @@ const app = express();
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) return callback(null, true);
-        if (/vercel\.app$/.test(origin) || /localhost/.test(origin)) {
+        if (origin.includes('vercel.app') || origin.includes('localhost')) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
