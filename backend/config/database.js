@@ -18,6 +18,7 @@ if (process.env.DATABASE_URL) {
     });
 } else {
     // Local Development
+    try { require('sqlite3'); } catch (e) { } // For Vercel NFT tracing
     sequelize = new Sequelize({
         dialect: 'sqlite',
         storage: path.join(__dirname, '../database.sqlite'),
