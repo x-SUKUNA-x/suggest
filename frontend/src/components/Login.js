@@ -25,6 +25,7 @@ const Login = ({ setIsAuthenticated, initialSignup = false }) => {
     };
 
     const handleLoginSubmit = async (e) => {
+        console.log(process.env.REACT_APP_API_URL)
         e.preventDefault();
         try {
             const res = await api.post('/auth/login', loginData);
