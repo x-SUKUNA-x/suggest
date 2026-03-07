@@ -12,10 +12,23 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(cors({
-    origin: "https://suggest-g3yx.vercel.app",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+
+        if (
+            origin.includes("vercel.app") ||
+            origin.includes("localhost")
+        ) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true
 }));
+
+app.options('*', cors());
+
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
