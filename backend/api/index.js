@@ -34,13 +34,27 @@ app.use('/api/watchlist', watchlistRoutes);
 // Error Handler Middleware
 app.use(errorHandler);
 
-// Auto-syncing DB on boot in serverless can cause issues and slow down cold starts.
-// We only sync in local dev now.
-if (process.env.NODE_ENV !== 'production') {
+// Sync DB and start server (for Render / local dev)
+// On serverless (Vercel), this block is skipped since module.exports handles it
+const PORT = process.env.PORT || 5001;
+
+if (process.env.NODE_ENV === 'production') {
+    // Render: sync DB then start listening
     sequelize.sync({ alter: true })
-        .then(() => console.log('Database connected and synced'))
+        .then(() => {
+            console.log('Database connected and synced');
+            app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+        })
+        .catch(err => console.error('DB connection error:', err));
+} else {
+    // Local dev
+    sequelize.sync({ alter: true })
+        .then(() => {
+            console.log('Database connected and synced');
+            app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+        })
         .catch(err => console.error('DB connection error:', err));
 }
 
-// Crucial: Export the app for Vercel serverless functions
+// Export the app (for testing or future Vercel use)
 module.exports = app;

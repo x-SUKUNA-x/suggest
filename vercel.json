@@ -1,15 +1,11 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "backend/api/index.js",
-            "use": "@vercel/node"
-        }
-    ],
+    "buildCommand": "cd frontend && npm install && npm run build",
+    "outputDirectory": "frontend/build",
     "rewrites": [
         {
-            "source": "/api/(.*)",
-            "destination": "/backend/api/index.js"
+            "source": "/(.*)",
+            "destination": "/index.html"
         }
     ]
 }
